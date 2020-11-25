@@ -10,7 +10,7 @@ def arguments_definition():
     parser.add_argument(
         '--preset', '-p',
         type=str,
-        choices=['straight', '90', '45', 'random'],
+        choices=['straight', '90', '45', 'random', 'custom'],
         default='random',
         help='Setup a track type tendency.')
 
@@ -85,6 +85,13 @@ def run():
         grid [7][7] = "☐"
         grid [6][7] = "☐"
         grid [7][6] = "☐"
+
+    elif args.preset == 'custom':
+        q = int(input("Quantos pontos inicias? "))
+        for qty in range(q):
+            x = int(input("Coordenada X: "))
+            y = int(input("Coordenada Y: "))
+            grid [x][y] = "☐"
             
     
     # Range sets asphalt units quantity
