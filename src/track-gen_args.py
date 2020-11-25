@@ -8,21 +8,35 @@ def arguments_definition():
     """
     parser = argparse.ArgumentParser(description='Runs the track gen.')
     parser.add_argument(
-        'preset',
+        '--preset', '-p',
         type=str,
         choices=['straight', '90', '45', 'random'],
+        default='random',
         help='Setup a track type tendency.')
 
+    parser.add_argument(
+        '--size', '-s',
+        type=int,
+        nargs=1,
+        default=8,
+        help='Choose track size (for now only >=8)')
+
+    parser.add_argument(
+        '--density', '-d',
+        type=int,
+        nargs=1,
+        default=24,
+        help='Choose track density')
     return parser.parse_args()
 
 def run():
     args = arguments_definition()
-
+    print(args.size)
     grid = []
     # Create a 8x8 grass grid
-    for row in range(8):
+    for row in range(args.size[0]):
         grid.append([])
-        for col in range(8):
+        for col in range(args.size[0]):
             grid[row].append(" ")
 
     # Setup initial asphalt tiles
@@ -74,7 +88,7 @@ def run():
             
     
     # Range sets asphalt units quantity
-    for asphalts in range(24):
+    for asphalts in range(args.density[0]):
         c_x = randint(1, len(grid)-2)
         c_y = randint(1, len(grid[0])-2)
         while (grid[c_x+1][c_y] == " ") and (grid[c_x][c_y+1] == " ") and (grid[c_x-1][c_y] == " ") and (grid[c_x][c_y-1] == " "):
