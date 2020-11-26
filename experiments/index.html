@@ -1,0 +1,364 @@
+<!-- HTML expanding (Emmet):
+  - type html:5 and press Tab;
+  - type div>h1#header and press Tab;
+-->
+<html>
+    <script type="text/javascript">
+
+    points=[];
+    grid=[];
+    size=40;
+    density=600;
+    sqrsize=400/size;
+    id=1;
+
+    for (let i = 0; i < size; i++) {
+        grid.push([]);
+        for(let j = 0; j < size; j++) {
+            grid[i].push(0);
+        }
+    }
+
+    var canvas, ctx, flag = false,
+        prevX = 0,
+        currX = 0,
+        prevY = 0,
+        currY = 0,
+        dot_flag = false;
+
+    var x = "black",
+        y = 2;
+    
+    function init() {
+        canvas = document.getElementById('can');
+        ctx = canvas.getContext("2d");
+        w = canvas.width;
+        h = canvas.height;
+
+        canvas2 = document.getElementById('can2');
+        ctx2 = canvas2.getContext("2d");
+        w2 = canvas2.width;
+        h2 = canvas2.height;
+    
+        canvas.addEventListener("mousemove", function (e) {
+            findxy('move', e)
+        }, false);
+        canvas.addEventListener("mousedown", function (e) {
+            findxy('down', e)
+        }, false);
+        canvas.addEventListener("mouseup", function (e) {
+            findxy('up', e)
+        }, false);
+        canvas.addEventListener("mouseout", function (e) {
+            findxy('out', e)
+        }, false);
+    }
+    
+    function color(obj) {
+        switch (obj.id) {
+            case "green":
+                x = "green";
+                id=3;
+                break;
+            case "blue":
+                x = "blue";
+                id=2;
+                break;
+            case "red":
+                x = "red";
+                id=4;
+                break;
+            case "yellow":
+                x = "yellow";
+                id=5;
+                break;
+            case "orange":
+                x = "orange";
+                id=6;
+                break;
+            case "black":
+                x = "black";
+                break;
+            case "white":
+                x = "white";
+                break;
+        }
+    
+    }
+    
+    function draw() {
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currX, currY);
+        ctx.strokeStyle = x;
+        ctx.lineWidth = y;
+        ctx.stroke();
+        ctx.closePath();
+    }
+    
+    function erase() {
+        var m = confirm("Want to clear");
+        if (m) {
+            ctx.clearRect(0, 0, w, h);
+            ctx2.clearRect(0, 0, w2, h2);
+
+            for (let i = 0; i < size; i++) {
+                for(let j = 0; j < size; j++) {
+                    grid[i][j]=0;
+                }
+            }
+            document.getElementById("canvasimg").style.display = "none";
+        }
+    }
+
+    function updateSize() {
+        size = parseInt(prompt("Enter a Value", "20"), 10);
+        size = isNaN(size) ? 20 : size;
+        sqrsize=400/size;
+        grid=[];
+        ctx.clearRect(0, 0, w, h);
+        ctx2.clearRect(0, 0, w2, h2);
+
+        for (let i = 0; i < size; i++) {
+            grid.push([]);
+            for(let j = 0; j < size; j++) {
+                grid[i].push(0);
+            }
+        }
+        document.getElementById("canvasimg").style.display = "none";
+        
+    }
+
+    function updateDensity() {
+        density = parseInt(prompt("Enter a Value", "200"), 10);
+        density = isNaN(density) ? 200 : density;
+        sqrsize=400/size;
+        grid=[];
+        ctx.clearRect(0, 0, w, h);
+        ctx2.clearRect(0, 0, w2, h2);
+
+        for (let i = 0; i < size; i++) {
+            grid.push([]);
+            for(let j = 0; j < size; j++) {
+                grid[i].push(0);
+            }
+        }
+        document.getElementById("canvasimg").style.display = "none";
+        
+    }
+
+    function updateBrush() {
+        y = parseInt(prompt("Enter a Value", "2"), 10);
+        y = isNaN(y) ? 2 : y;
+    }
+
+    function getRndInteger(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) ) + min;
+    } 
+    
+    function checkColors(numbers){
+
+    var modes = [], count = [], i, number, maxIndex = 0;
+ 
+    for (i = 0; i < numbers.length; i += 1) {
+        number = numbers[i];
+        count[number] = (count[number] || 0) + 1;
+        if (count[number] > maxIndex) {
+            maxIndex = count[number];
+        }
+    }
+ 
+    for (i in count)
+        if (count.hasOwnProperty(i)) {
+            if (count[i] === maxIndex) {
+                modes.push(Number(i));
+            }
+        }
+ 
+    return modes[0];
+    }
+
+    function save() {
+
+        for (let i=0; i<density;i++) {
+            var c_x = getRndInteger(1,size-2);
+            var c_y = getRndInteger(1,size-2);
+            while ((grid[c_x+1][c_y] == 0) && (grid[c_x][c_y+1] == 0) && (grid[c_x-1][c_y] == 0) && (grid[c_x][c_y-1] == 0)) {
+                c_x = getRndInteger(1, size-2);
+                c_y = getRndInteger(1, size-2);
+            }
+
+
+            var test=[grid[c_x+1][c_y], grid[c_x][c_y+1], grid[c_x-1][c_y], grid[c_x][c_y-1]]
+
+            var z = test.length;
+            while (z--) {
+                if (test[z] === 0) {
+                    test.splice(z, 1);
+                }
+            }
+            if (grid[c_x][c_y]==0) {
+                grid[c_x][c_y] = checkColors(test);
+            }
+
+        }
+
+        for (let i = 0; i < size; i++) {
+            for(let j = 0; j < size; j++) {
+                if (grid[i][j]==1) {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "black";
+                    ctx2.fill();
+                }
+                else if (grid[i][j]==2) {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "blue";
+                    ctx2.fill();
+                }
+                else if (grid[i][j]==3) {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "green";
+                    ctx2.fill();
+                }
+                else if (grid[i][j]==4) {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "red";
+                    ctx2.fill();
+                }
+                else if (grid[i][j]==5) {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "yellow";
+                    ctx2.fill();
+                }
+                else if (grid[i][j]==6) {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "orange";
+                    ctx2.fill();
+                }
+                else {
+                    ctx2.beginPath();
+                    ctx2.fillRect(i*sqrsize,j*sqrsize,(i*sqrsize)+sqrsize,(j*sqrsize)+sqrsize);
+                    ctx2.fillStyle = "white";
+                    ctx2.fill();
+                }
+            }
+        }console.log(JSON.parse(JSON.stringify(grid)))
+    }
+    
+    function findxy(res, e) {
+        if (res == 'down') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.offsetLeft;
+            currY = e.clientY - canvas.offsetTop;
+    
+            flag = true;
+            dot_flag = true;
+            if (dot_flag) {
+                ctx.beginPath();
+                ctx.fillStyle = x;
+                ctx.fillRect(currX, currY, 2, 2);
+                ctx.closePath();
+                dot_flag = false;
+            }
+        }
+        if (res == 'up' || res == "out") {
+            flag = false;
+        }
+        if (res == 'move') {
+            if (flag) {
+                prevX = currX;
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;
+                currY = e.clientY - canvas.offsetTop;
+                if (x=='white') {
+                    grid[Math.floor(currX/sqrsize)][Math.floor(currY/sqrsize)]=0;
+                }
+                else if (x=='black') {
+                    grid[Math.floor(currX/sqrsize)][Math.floor(currY/sqrsize)]=1;
+                }
+                else if (x=='blue') {
+                    grid[Math.floor(currX/sqrsize)][Math.floor(currY/sqrsize)]=2;
+                }
+                else if (x=='green') {
+                    grid[Math.floor(currX/sqrsize)][Math.floor(currY/sqrsize)]=3;
+                }
+                grid[Math.floor(currX/sqrsize)][Math.floor(currY/sqrsize)]=id;
+                draw();
+            }
+        }
+    }
+
+
+    function presetStraight() {
+
+        for (let i = 0; i < size; i++) {
+            grid[i][Math.floor(size/2)]=id;
+        }
+
+        save();
+
+    }
+
+    function preset45() {
+
+        for (let i = 0; i < size; i++) {
+            grid[i][i]=id;
+        }
+
+        save();
+
+    }
+
+    function preset90() {
+
+        for (let i = 0; i < size; i++) {
+            if (i<size/2) {
+                grid[Math.floor(size/2)][i]=id;
+            }
+            else {
+                grid[i][Math.floor(size/2)]=id;
+            }
+
+        }
+
+        save();
+
+    }
+
+
+    </script>
+    <body onload="init()">
+        <canvas id="can" width="400" height="400" style="position:absolute;top:10%;left:10%;border:2px solid;"></canvas>
+
+        <div style="position:absolute;top:12%;left:43%;">Parameters</div>
+        <input type="button" value="Size" id="sze" size="30" onclick="updateSize()" style="position:absolute;top:15%;left:42%;">
+        <input type="button" value="Density" id="dns" size="30" onclick="updateDensity()" style="position:absolute;top:15%;left:45%;">
+        <input type="button" value="BSize" id="bsz" size="30" onclick="updateBrush()" style="position:absolute;top:15%;left:38%;">
+
+        <div style="position:absolute;top:20%;left:43%;">Eraser/Brush</div>
+        <div style="position:absolute;top:22%;left:47%;width:15px;height:15px;background:white;border:2px solid;" id="white" onclick="color(this)"></div>
+        <div style="position:absolute;top:22%;left:45%;width:19px;height:19px;background:black;" id="black" onclick="color(this)"></div>
+        <div style="position:absolute;top:22%;left:43%;width:19px;height:19px;background:blue;" id="blue" onclick="color(this)"></div>
+        <div style="position:absolute;top:22%;left:41%;width:19px;height:19px;background:green;" id="green" onclick="color(this)"></div>
+        <div style="position:absolute;top:25%;left:47%;width:19px;height:19px;background:red;" id="red" onclick="color(this)"></div>
+        <div style="position:absolute;top:25%;left:45%;width:19px;height:19px;background:yellow;" id="yellow" onclick="color(this)"></div>
+        <div style="position:absolute;top:25%;left:43%;width:19px;height:19px;background:orange;" id="orange" onclick="color(this)"></div>
+
+        <div style="position:absolute;top:28%;left:43%;">Preset</div>
+        <input type="button" value="Straight" id="stg" size="30" onclick="presetStraight()" style="position:absolute;top:30%;left:40%;">
+        <input type="button" value="90" id="nnt" size="30" onclick="preset90()" style="position:absolute;top:30%;left:46%;">
+        <input type="button" value="45" id="ffv" size="30" onclick="preset45()" style="position:absolute;top:30%;left:44%;">
+
+        <img id="canvasimg" style="position:absolute;top:10%;left:52%;" style="display:none;">
+        <canvas id="can2" width="400" height="400" style="position:absolute;top:10%;left:52%;"></canvas>
+        <input type="button" value="save" id="btn" size="30" onclick="save()" style="position:absolute;top:55%;left:10%;">
+        <input type="button" value="clear" id="clr" size="23" onclick="erase()" style="position:absolute;top:55%;left:15%;">
+    </body>
+    </html>
